@@ -21,7 +21,7 @@ for l in open("data/data.txt"):
     user_watches[user].append(repo)
     repo_watch_count[repo] = ( repo_watch_count[repo][0]+1, repo )
 
-repo_watch_count.sort(key = lambda x: x[0], reverse = True)
+repo_watch_count.sort(reverse = True)
 popular_repos = [ x[1] for x in repo_watch_count[:1000] ]
 
 results = open("results.txt", "w")
