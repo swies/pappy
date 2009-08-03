@@ -33,6 +33,7 @@ class Pappy(object):
         for r in self.user_repos[user]:
             for u in self.repo_users[r]:
                 similar_users[u] = True
+        del similar_users[user]
         sim = []
         for u in similar_users.iterkeys():
             sim.append( (self.similarity(user, u), u) )
@@ -40,26 +41,26 @@ class Pappy(object):
         return sim
 
     def similarity(self, user, other):
-        return 1.0
-        #return self.user_repos_watched(user, other)
-        #return (self.user_repos_watched(user, other) +
-        #        self.user_repos_watched(other, user)) / 2.0
+        #return 1.0
+        #return self.common_repos(user, other) / len(self.user_repos[user])
+        return ( 2.0 * self.common_repos(user, other) ) / \
+               ( len(self.user_repos[user]) + len(self.user_repos[other]) )
 
-    def user_repos_watched(self, user, other):
+    def common_repos(self, user, other):
         """
-        fraction of user's repos the other user watches
+        number of common repos between user and other
         """
         s = 0.0
-        total = len(self.user_repos[user])
         for r in self.user_repos[user]:
             if r in self.user_repos[other]:
                 s += 1.0
-        return s/total
+        return s
 
     def recommend(self, user):
         repos = {}
         similar_users = self.similar_users(user)
-        print len(similar_users)
+        print len(similar_users), similar_users[:5]
+        #similar_users = similar_users[:10]
         for sim, o in similar_users:
             for r in self.user_repos[o]:
                 if repos.has_key(r):
