@@ -22,11 +22,16 @@ class Pappy(object):
             self.user_repos[user].append(repo)
             self.repo_users[repo].append(user)
 
+        self.popular_repos = []
+        for i in range(len(self.repo_users)):
+            self.popular_repos.append( (len(self.repo_users[i]), i) )
+        self.popular_repos.sort(reverse = True)
+
     def print_stats(self):
-        average_repos = sum([ len(rl) for rl in self.user_repos])/float(self.users)
-        average_users = sum([ len(ul) for ul in self.repo_users])/float(self.repos)
-        print "average repos per user:", average_repos
-        print "average users per repo:", average_users
+        mean_repos = sum([ len(rl) for rl in self.user_repos])/float(self.users)
+        mean_users = sum([ len(ul) for ul in self.repo_users])/float(self.repos)
+        print "mean repos per user:", mean_repos
+        print "mean users per repo:", mean_users
 
     def similar_users(self, user):
         similar_users = {}
@@ -84,8 +89,15 @@ def main():
     n = 0
     for l in open("data/test.txt"):
         u = int(l)
-        recs = p.recommend(u)[:10]
-        results.write("%d:%s\n" % (u, ",".join([str(x[1]) for x in recs])))
+        recs = [ x[1] for x in p.recommend(u)[:10] ]
+        for c, r in p.popular_repos: # pad with popular repositories
+            if len(recs) >= 10:
+                break
+            if r not in recs and r not in p.user_repos[u]:
+                recs.append(r)
+        results.write("%d:%s\n" % (u, ",".join([ str(x) for x in recs[:10] ])))
+        if len(recs) != 10:
+            print "ALERT! screwy recs for", u
         n += 1
         print n
 
