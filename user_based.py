@@ -29,17 +29,25 @@ class Pappy(object):
         print "average users per repo:", average_users
 
     def similar_users(self, user):
-        similar_users = []
+        similar_users = {}
         for r in self.user_repos[user]:
             for u in self.repo_users[r]:
-                if u not in similar_users:
-                    similar_users.append(u)
-        return similar_users
+                similar_users[u] = True
+        sim = []
+        for u in similar_users.iterkeys():
+            sim.append( (self.similarity(user, u), u) )
+        sim.sort(reverse = True)
+        return sim
 
     def similarity(self, user, other):
+        return 1.0
+        #return self.user_repos_watched(user, other)
+        #return (self.user_repos_watched(user, other) +
+        #        self.user_repos_watched(other, user)) / 2.0
+
+    def user_repos_watched(self, user, other):
         """
-        returns similarity score of other to user
-        currently fraction of our repos the other user has too
+        fraction of user's repos the other user watches
         """
         s = 0.0
         total = len(self.user_repos[user])
@@ -50,8 +58,9 @@ class Pappy(object):
 
     def recommend(self, user):
         repos = {}
-        for o in self.similar_users(user):
-            sim = self.similarity(user, o)
+        similar_users = self.similar_users(user)
+        print len(similar_users)
+        for sim, o in similar_users:
             for r in self.user_repos[o]:
                 if repos.has_key(r):
                     repos[r].append(sim)
@@ -66,14 +75,17 @@ class Pappy(object):
         recs.sort(reverse = True)
         return recs
 
-p = Pappy()
+def main():
+    p = Pappy()
 
+    results = open("results.txt", "w")
+    n = 0
+    for l in open("data/test.txt"):
+        u = int(l)
+        recs = p.recommend(u)[:10]
+        results.write("%d:%s\n" % (u, ",".join([str(x[1]) for x in recs])))
+        n += 1
+        #print n
 
-results = open("results.txt", "w")
-n = 0
-for l in open("data/test.txt"):
-    u = int(l)
-    recs = p.recommend(u)[:10]
-    results.write("%d:%s\n" % (u, ",".join([str(x[1]) for x in recs])))
-    n += 1
-    print n
+if __name__ == "__main__":
+    main()
