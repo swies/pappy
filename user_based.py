@@ -33,9 +33,10 @@ class Pappy(object):
         for r in self.user_repos[user]:
             for u in self.repo_users[r]:
                 similar_users[u] = True
-        del similar_users[user]
         sim = []
         for u in similar_users.iterkeys():
+            if u == user:
+                continue
             sim.append( (self.similarity(user, u), u) )
         sim.sort(reverse = True)
         return sim
@@ -86,7 +87,7 @@ def main():
         recs = p.recommend(u)[:10]
         results.write("%d:%s\n" % (u, ",".join([str(x[1]) for x in recs])))
         n += 1
-        #print n
+        print n
 
 if __name__ == "__main__":
     main()
