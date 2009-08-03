@@ -70,7 +70,10 @@ p = Pappy()
 
 
 results = open("results.txt", "w")
+n = 0
 for l in open("data/test.txt"):
     u = int(l)
     recs = p.recommend(u)[:10]
     results.write("%d:%s\n" % (u, ",".join([str(x[1]) for x in recs])))
+    n += 1
+    print n
