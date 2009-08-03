@@ -47,10 +47,12 @@ class Pappy(object):
         return sim
 
     def similarity(self, user, other):
+        #return ( 2.0 * self.common_repos(user, other) ) / \
+        #       ( len(self.user_repos[user]) + len(self.user_repos[other]) )
         #return 1.0
+        return self.common_repos(user, other) / len(self.user_repos[other])
         #return self.common_repos(user, other) / len(self.user_repos[user])
-        return ( 2.0 * self.common_repos(user, other) ) / \
-               ( len(self.user_repos[user]) + len(self.user_repos[other]) )
+        #return self.common_repos(user, other)
 
     def common_repos(self, user, other):
         """
