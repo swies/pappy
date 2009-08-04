@@ -47,12 +47,31 @@ class Pappy(object):
         return sim
 
     def similarity(self, user, other):
+        #return self.common_repos(user, other) / len(self.user_repos[other])
+        return self.new_similarity(user, other)
         #return ( 2.0 * self.common_repos(user, other) ) / \
         #       ( len(self.user_repos[user]) + len(self.user_repos[other]) )
         #return 1.0
-        return self.common_repos(user, other) / len(self.user_repos[other])
         #return self.common_repos(user, other) / len(self.user_repos[user])
         #return self.common_repos(user, other)
+
+    def new_similarity(self, user, other):
+        """
+        the idea here is that when doing a user-based recommendation we
+        should find users whose whole watch list is quite similar to ours
+
+        so let's take the fraction of user watches the other has
+        and multiply by a control for the number of repositories watched
+
+        it may also be good to limit to the first 10 or 20 similar users
+        (after filtering for any 1.0 values) when generating recommendations
+        if this metric doesn't go to zero fast enough
+        """
+        control_k = 10.0 # higher means slower rolloff
+        diff = len(self.user_repos[user]) - len(self.user_repos[other])
+        control = float(control_k)/(control_k + abs(diff))
+        shared = self.common_repos(user, other) / len(self.user_repos[user])
+        return control*shared
 
     def common_repos(self, user, other):
         """
@@ -68,7 +87,7 @@ class Pappy(object):
         repos = {}
         similar_users = self.similar_users(user)
         print len(similar_users), similar_users[:5]
-        #similar_users = similar_users[:10]
+        #similar_users = similar_users[:32]
         for sim, o in similar_users:
             for r in self.user_repos[o]:
                 if repos.has_key(r):
