@@ -67,7 +67,7 @@ class Pappy(object):
         (after filtering for any 1.0 values) when generating recommendations
         if this metric doesn't go to zero fast enough
         """
-        control_k = 10.0 # higher means slower rolloff
+        control_k = 1.0 # higher means slower rolloff
         diff = len(self.user_repos[user]) - len(self.user_repos[other])
         control = float(control_k)/(control_k + abs(diff))
         shared = self.common_repos(user, other) / len(self.user_repos[user])
