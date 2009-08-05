@@ -47,14 +47,14 @@ class Pappy(object):
         return sim
 
     def similarity(self, user, other):
-        # return self.tanimoto(user, other)
+        return self.jaccard(user, other)
 
         # let's try making that simple % common metric symmetric
         #return ( self.common_repos(user, other)**2.0 ) / \ 
         #       ( len(self.user_repos[user]) * len(self.user_repos[other]) )
 
         # best result so far divides common repos by other count
-        return self.common_repos(user, other) / len(self.user_repos[other])
+        #return self.common_repos(user, other) / len(self.user_repos[other])
        
         #return self.new_similarity(user, other)
        
@@ -69,11 +69,17 @@ class Pappy(object):
         #return self.common_repos(user, other)
         #return 1.0
 
-    def tanimoto(self, user, other):
+    def jaccard(self, user, other):
         common = self.common_repos(user, other)
         userlen = len(self.user_repos[user])
         otherlen = len(self.user_repos[other])
         return common / ( userlen + otherlen - common )
+    
+    def manhattan(self, user, other):
+        common = self.common_repos(user, other)
+        userlen = len(self.user_repos[user])
+        otherlen = len(self.user_repos[other])
+        return userlen + otherlen - ( 2 * common )
 
     def new_similarity(self, user, other):
         """
@@ -141,7 +147,7 @@ def main():
                 recs.append(r)
         recs = recs[:10]
         for r in recs:
-            if len(p.repo_users[r]) <= 5:
+            if len(p.repo_users[r]) < 5:
                 # maybe I want to filter below a certain size
                 smalls += 1
         results.write("%d:%s\n" % (u, ",".join([ str(x) for x in recs ])))
