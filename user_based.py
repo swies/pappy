@@ -48,8 +48,7 @@ class Pappy(object):
 
     def similarity(self, user, other):
         # let's try making that simple % common metric symmetric
-        common = self.common_repos(user, other)
-        return (common*common) / \
+        return ( self.common_repos(user, other)**2.0 ) / \ 
                ( len(self.user_repos[user]) * len(self.user_repos[other]) )
 
         # best result so far divides common repos by other count
