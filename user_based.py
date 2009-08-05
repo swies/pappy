@@ -47,16 +47,31 @@ class Pappy(object):
         return sim
 
     def similarity(self, user, other):
-        return self.common_repos(user, other) / len(self.user_repos[other])
+        # let's try making that simple % common metric symmetric
+        common = self.common_repos(user, other)
+        return (common*common) / \
+               ( len(self.user_repos[user]) * len(self.user_repos[other]) )
+
+        # best result so far divides common repos by other count
+        #return self.common_repos(user, other) / len(self.user_repos[other])
+       
         #return self.new_similarity(user, other)
+       
+        # an odd attempt at a symmetric % common similarity
         #return ( 2.0 * self.common_repos(user, other) ) / \
         #       ( len(self.user_repos[user]) + len(self.user_repos[other]) )
+
+        # % of our repos that other watches, real simple, but more
+        # effective to divide by other count
         #return self.common_repos(user, other) / len(self.user_repos[user])
-        #return 1.0
+
         #return self.common_repos(user, other)
+        #return 1.0
 
     def new_similarity(self, user, other):
         """
+        --- this is sort of a bust ---
+
         the idea here is that when doing a user-based recommendation we
         should find users whose whole watch list is quite similar to ours
 
