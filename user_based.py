@@ -47,12 +47,14 @@ class Pappy(object):
         return sim
 
     def similarity(self, user, other):
+        # return self.tanimoto(user, other)
+
         # let's try making that simple % common metric symmetric
-        return ( self.common_repos(user, other)**2.0 ) / \ 
-               ( len(self.user_repos[user]) * len(self.user_repos[other]) )
+        #return ( self.common_repos(user, other)**2.0 ) / \ 
+        #       ( len(self.user_repos[user]) * len(self.user_repos[other]) )
 
         # best result so far divides common repos by other count
-        #return self.common_repos(user, other) / len(self.user_repos[other])
+        return self.common_repos(user, other) / len(self.user_repos[other])
        
         #return self.new_similarity(user, other)
        
@@ -66,6 +68,12 @@ class Pappy(object):
 
         #return self.common_repos(user, other)
         #return 1.0
+
+    def tanimoto(self, user, other):
+        common = self.common_repos(user, other)
+        userlen = len(self.user_repos[user])
+        otherlen = len(self.user_repos[other])
+        return common / ( userlen + otherlen - common )
 
     def new_similarity(self, user, other):
         """
@@ -121,6 +129,7 @@ def main():
     p = Pappy()
 
     results = open("results.txt", "w")
+    smalls = 0
     n = 0
     for l in open("data/test.txt"):
         u = int(l)
@@ -130,11 +139,15 @@ def main():
                 break
             if r not in recs and r not in p.user_repos[u]:
                 recs.append(r)
-        results.write("%d:%s\n" % (u, ",".join([ str(x) for x in recs[:10] ])))
-        if len(recs) != 10:
-            print "ALERT! screwy recs for", u
+        recs = recs[:10]
+        for r in recs:
+            if len(p.repo_users[r]) <= 5:
+                # maybe I want to filter below a certain size
+                smalls += 1
+        results.write("%d:%s\n" % (u, ",".join([ str(x) for x in recs ])))
         n += 1
         print n
+        print smalls, "smalls"
 
 if __name__ == "__main__":
     main()
